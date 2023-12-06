@@ -43,6 +43,7 @@ internal class Program
         });
 
         builder.Services.AddTransient<IAuthService, AuthService>();
+        builder.Services.AddTransient<IFileHandlerService, FileHandlerService>();
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

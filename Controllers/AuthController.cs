@@ -14,7 +14,6 @@ namespace LMS_Elibrary.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        public static User user = new User();
         private readonly IConfiguration _configuration;
         private readonly IAuthService _authService;
 
@@ -25,9 +24,9 @@ namespace LMS_Elibrary.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(UserDto request)
+        public async Task<IActionResult> Register(UserDto request, string password)
         {
-            if (await _authService.Register(request))
+            if (await _authService.Register(request, password))
             {
                 return Ok("Registered");
             }
@@ -36,13 +35,13 @@ namespace LMS_Elibrary.Controllers
 
 
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(UserDto request)
+        public async Task<IActionResult> Login(UserDto request, string password)
         {
             if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            string jwt = await _authService.Login(request);
+            string jwt = await _authService.Login(request, password);
             if(jwt == "false") 
             {
                 return BadRequest("Some thing when wrong");

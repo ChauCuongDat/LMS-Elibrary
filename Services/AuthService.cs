@@ -22,27 +22,27 @@ namespace LMS_Elibrary.Services
             _configuration = configuration;
         }
 
-        public async Task<bool> Register(UserDto request)
+        public async Task<bool> Register(UserDto request, string password)
         {
 
             var identityUser = new IdentityUser
             {
                 UserName = request.UserName
             };
-            var result = await _userManager.CreateAsync(identityUser, request.Password);
+            var result = await _userManager.CreateAsync(identityUser, password);
 
             return result.Succeeded;
         }
 
 
-        public async Task<string> Login(UserDto request)
+        public async Task<string> Login(UserDto request, string password)
         {
             var identityUser = await _userManager.FindByNameAsync(request.UserName);
             if(identityUser == null)
             {
                 return "false";
             }
-            if (!await _userManager.CheckPasswordAsync(identityUser, request.Password)) 
+            if (!await _userManager.CheckPasswordAsync(identityUser, password)) 
             { 
                 return "false";
             }

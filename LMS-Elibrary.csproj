@@ -28,4 +28,11 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.33.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="FileHandler\Document\" />
+    <Folder Include="FileHandler\Exam\" />
+    <Folder Include="FileHandler\Avatar\" />
+    <Folder Include="FileHandler\PriFile\" />
+  </ItemGroup>
+
 </Project>

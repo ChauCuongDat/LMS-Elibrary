@@ -4,7 +4,7 @@ namespace LMS_Elibrary.Services
 {
     public interface IAuthService
     {
-        Task<bool> Register(UserDto request);
-        Task<string> Login(UserDto request);
+        Task<bool> Register(UserDto request, string password);
+        Task<string> Login(UserDto request, string password);
     }
 }
