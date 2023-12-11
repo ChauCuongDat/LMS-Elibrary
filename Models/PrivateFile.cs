@@ -10,9 +10,10 @@ namespace LMS_Elibrary.Models
         public string Type {  get; set; } = string.Empty;
         public double Size { get; set; }
         public DateTime Updated { get; set; }
+        public string FileAddress { get; set; } = string.Empty;
 
         //Foreign key
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [ForeignKey("UserId")]
         public UserDto UserDto { get; set; }
     }

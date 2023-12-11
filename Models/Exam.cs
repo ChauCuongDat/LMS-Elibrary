@@ -11,11 +11,12 @@ namespace LMS_Elibrary.Models
         public string Form { get; set; } = string.Empty;
         public string Duration { get; set; } = string.Empty;
         public DateTime Created { get; set; }
-        public bool ApproStatus { get; set; }
+        public bool? ApproStatus { get; set; }
         public bool Public {  get; set; }
+        public string FileAdddress { get; set; } = string.Empty;
 
         //Foreign key
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [ForeignKey("UserId")]
         public UserDto UserDto { get; set; }
 

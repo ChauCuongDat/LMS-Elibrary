@@ -12,7 +12,7 @@ namespace LMS_Elibrary.Models
         [ForeignKey("SubId")]
         public Subject Subject { get; set; }
 
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [ForeignKey("UserId")]
         public UserDto userDto { get; set; }
     }

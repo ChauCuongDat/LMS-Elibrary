@@ -19,5 +19,6 @@ namespace LMS_Elibrary.Models
         public ICollection<StarSubject>? StarSubjects { get; set; }
         public ICollection<Q_A>? Q_As { get; set; }
         public ICollection<Help>? Helps { get; set; }
+        public Setting Setting { get; set; }
     }
 }

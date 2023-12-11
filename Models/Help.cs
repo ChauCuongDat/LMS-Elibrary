@@ -10,7 +10,7 @@ namespace LMS_Elibrary.Models
         public string Description { get; set; } = string.Empty;
 
         //Foreign key
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         [ForeignKey("UserId")]
         public UserDto UserDto { get; set; }
     }
