@@ -1,9 +1,11 @@
 ﻿using LMS_Elibrary.Contextes;
 using LMS_Elibrary.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using Document = LMS_Elibrary.Models.Document;
 
 namespace LMS_Elibrary.Services
@@ -11,12 +13,16 @@ namespace LMS_Elibrary.Services
     public class CRUDService
     {
         private readonly LMSDbConext _context;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<UserDto> _userManager;
         private readonly IFileHandlerService _fileHandlerService;
 
-        public CRUDService(LMSDbConext LMSDbConext, IFileHandlerService fileHandlerService)
+        public CRUDService(LMSDbConext LMSDbConext, IFileHandlerService fileHandlerService, RoleManager<IdentityRole> roleManager, UserManager<UserDto> userManager)
         {
             this._context = LMSDbConext;
             this._fileHandlerService = fileHandlerService;
+            this._roleManager = roleManager;
+            this._userManager = userManager;
         }
 
         //Document
@@ -333,70 +339,115 @@ namespace LMS_Elibrary.Services
             return "No private file found";
         }
 
-        //Q_A
-        public string addQ_A(Q_A Q_A)
+        //Question
+        public string addQuestion(Question quest)
         {
-            _context.q_a.Add(Q_A);
+            _context.question.Add(quest);
             _context.SaveChanges();
             return "Q&A added";
         }
-        public List<Q_A> GetQ_As()
+        public List<Question> GetQuestions()
         {
-            return _context.q_a.ToList();
+            return _context.question.ToList();
         }
-        public Q_A GetQ_A(int id)
+        public Question GetQuestion(int id)
         {
-            return _context.q_a.FirstOrDefault(i => i.Id == id);
+            return _context.question.FirstOrDefault(i => i.Id == id);
         }
-        public string updateQ_A (Q_A Q_A)
+        public string updateQuestion(Question quest)
         {
-            _context.q_a.Update(Q_A);
+            _context.question.Update(quest);
             _context.SaveChanges();
             return "Q&A updated";
         }
-        public string removeQ_A(int id)
+        public string removeQuestion(int id)
         {
-            Q_A q_a = _context.q_a.Find(id);
-            if (q_a != null)
+            Question quest = _context.question.Find(id);
+            if (quest != null)
             {
-                _context.Remove(q_a);
+                _context.question.Remove(quest);
                 _context.SaveChanges();
-                return "Q&A removed";
+                return "Question removed";
             }
-            return "Q&A not found";
+            return "Question not found";
         }
 
-        //Star subject
-        public string addStarSubject(StarSubject starSub)
+        //Answer
+        public string addAnswer(Answer answer)
         {
-            _context.starSubject.Add(starSub);
+            _context.answer.Add(answer);
             _context.SaveChanges();
-            return "Star subject added";
+            return "Answer added";
         }
-        public List<StarSubject> GetStarSubjects()
+        public List<Answer> GetAnswersByQuestion(int quesId)
         {
-            return _context.starSubject.ToList();
+            return _context.answer.
+                Include(i => i.Question).
+                Where(i => quesId == i.Id).ToList();
         }
-        public StarSubject GetStarSubject(int id)
+        public string updateAnswer(Answer answer)
         {
-            return _context.starSubject.FirstOrDefault(i => i.Id == id);
-        }
-        public string updateStarSUbject(StarSubject starSub)
-        {
-            _context.starSubject.Update(starSub);
+            _context.answer.Update(answer);
             _context.SaveChanges();
-            return "Star subject added";
+            return "Answer updated";
         }
-        public string deleteStarSubject(int id)
+        public string removeAnswer(int id)
         {
-            StarSubject starSubject = _context.starSubject.Find(id);
-            if (starSubject != null)
+            Answer answer = _context.answer.Find(id);
+            if(answer != null)
             {
-                _context.starSubject.Remove(starSubject);
+                _context.answer.Remove(answer);
                 _context.SaveChanges();
-                return "Star subject removed";
+                return "Answer removed";
             }
-            return "No star subject found";
+            return "Answer not found";
+        }
+
+        //Student subject
+        public string addStudyingSubject(StudyingSubject stuSub)
+        {
+            _context.studyingSubject.Add(stuSub);
+            _context.SaveChanges();
+            return "Studying subject added";
+        }
+        public List<StudyingSubject> GetStudyingSubjects()
+        {
+            return _context.studyingSubject.ToList();
+        }
+        public StudyingSubject GetStudyingSubject(int id)
+        {
+            return _context.studyingSubject.FirstOrDefault(i => i.Id == id);
+        }
+        public string updateStudyingSubject(StudyingSubject stuSub)
+        {
+            _context.studyingSubject.Update(stuSub);
+            _context.SaveChanges();
+            return "Studying subject updated";
+        }
+        public string favStudyingSubject(int studyId)
+        {
+            StudyingSubject stuSub = _context.studyingSubject.Find(studyId);
+            stuSub.isFavorite = true;
+            _context.SaveChanges();
+            return "Studying subject favorited";
+        }
+        public string UnfavStudyingSubject(int studyId)
+        {
+            StudyingSubject stuSub = _context.studyingSubject.Find(studyId);
+            stuSub.isFavorite = false;
+            _context.SaveChanges();
+            return "Studying subject unfavorited";
+        }
+        public string deleteStudyingSubject(int id)
+        {
+            StudyingSubject stuSubject = _context.studyingSubject.Find(id);
+            if (stuSubject != null)
+            {
+                _context.studyingSubject.Remove(stuSubject);
+                _context.SaveChanges();
+                return "Studying subject removed";
+            }
+            return "No Studying subject found";
         }
    
 
@@ -445,6 +496,10 @@ namespace LMS_Elibrary.Services
         {
             return _context.userDto.ToList();
         }
+        public async Task<IList<UserDto>> GetUsersByRole(string roleName)
+        {
+            return await Task.FromResult(_userManager.GetUsersInRoleAsync(roleName).Result);
+        }
         public UserDto GetUser(string id)
         {
             return _context.userDto.FirstOrDefault(i => i.Id == id);
@@ -454,6 +509,34 @@ namespace LMS_Elibrary.Services
             _context.userDto.Update(user);
             _context.SaveChanges();
             return "User added";
+        }
+        public async Task<string> addUserRole(string roleName, string userId)
+        {
+            UserDto user = _userManager.FindByIdAsync(userId).Result;
+            await _userManager.AddToRoleAsync(user, roleName);
+            return "Role has been added to user";
+        }
+        public async Task<string> removeUserRole(string roleName, string userId)
+        {
+            UserDto user = _userManager.FindByIdAsync(userId).Result;
+            await _userManager.RemoveFromRoleAsync(user, roleName);
+            return "Role has been removed from user";
+        }
+        public async Task<string> changeAvatar(IFormFile avatar, string userId)
+        {
+            UserDto user = _context.userDto.FirstOrDefault(i => i.Id == userId);
+            if (user.Avatar != null)
+            {
+                await _fileHandlerService.DeleteFile(user.Avatar);
+            }
+            user.Avatar = _fileHandlerService.SaveAvatar(avatar).ToString();
+            updateUser(user);
+            return "Avatar changed";
+        }
+        public async Task<IdentityResult> changePassword(string userId, string oldPass, string newPass)
+        {
+            UserDto user = _context.userDto.FirstOrDefault(i => i.Id == userId);
+            return await _userManager.ChangePasswordAsync(user, oldPass, newPass);
         }
         public string deleteUser(int id)
         {
@@ -479,6 +562,107 @@ namespace LMS_Elibrary.Services
             _context.settings.Update(setting);
             _context.SaveChanges();
             return "Setting saved";
+        }
+
+        //Role
+        public string addRole(IdentityRole iRole)
+        {
+            _roleManager.CreateAsync(iRole);
+            return "Role created";
+        }
+        public List<IdentityRole> GetRoles()
+        {
+            return _roleManager.Roles.ToList();
+        }
+        public string updateRole(IdentityRole role)
+        {
+            _roleManager.UpdateAsync(role);
+            return "Role updated";
+        }
+        public string removeRole(IdentityRole role)
+        {
+            _roleManager.DeleteAsync(role);
+            return "Role deleted";
+        }
+
+        //Topic
+        public string addTopic(Topic topic)
+        {
+            _context.Add(topic);
+            _context.SaveChanges();
+            return "Topic added";
+        }
+        public List<Topic> GetSubTopics(int subId)
+        {
+            return _context.topic.
+                Include(i => i.Subject).
+                Where(i =>  i.SubId == subId).ToList();
+        }
+        public string updateTopic(Topic topic)
+        {
+            _context.Update(topic);
+            _context.SaveChanges();
+            return "Topic updated";
+        }
+        public string removeTopic(Topic topic)
+        {
+            _context.Remove(topic);
+            _context.SaveChanges();
+            return "Topic removed";
+        }
+
+        //Class
+        public string addClass(Class clazz)
+        {
+            _context.Add(clazz);
+            _context.SaveChanges();
+            return "Class added";
+        }
+        public List<Class> GetClassesBy ()
+        {
+            return _context.classes.ToList();
+        }
+        public string updateClass(Class clazz)
+        {
+            _context.Update(clazz);
+            _context.SaveChanges();
+            return "Class updated";
+        }
+        public string removeClass(int classId)
+        {
+            Class clazz = _context.classes.Find(classId);
+            _context.Remove(clazz);
+            _context.SaveChanges();
+            return "Class removed";
+        }
+
+        //Class subject
+        public string addClassSubject(ClassSub classSub)
+        {
+            _context.Add(classSub);
+            _context.SaveChanges();
+            return "New subject added to class";
+        }
+        public List<ClassSub> getClassSubs()
+        {
+            return _context.classSub.ToList();
+        }
+        public string updateClass(ClassSub classSub)
+        {
+            _context.Update(classSub);
+            _context.SaveChanges();
+            return "Subject of class edited";
+        }
+        public string removeClassSub(int classSubId)
+        {
+            ClassSub classSub = _context.classSub.Find(classSubId);
+            if(classSub != null)
+            {
+                _context.Remove(classSub);
+                _context.SaveChanges();
+                return "Subject has been remove from class";
+            }
+            return "No subject in class is found";
         }
     }
 }

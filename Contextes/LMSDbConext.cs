@@ -18,10 +18,14 @@ namespace LMS_Elibrary.Contextes
         public DbSet<Help> help { get; set; }
         public DbSet<Notification> notification { get; set; }
         public DbSet<PrivateFile> privateFile { get; set; }
-        public DbSet<Q_A> q_a { get; set; }
-        public DbSet<StarSubject> starSubject { get; set; }
+        public DbSet<Question> question { get; set; }
+        public DbSet<StudyingSubject> studyingSubject { get; set; }
         public DbSet<Subject> subject { get; set; }
         public DbSet<UserDto> userDto { get; set; }
         public DbSet<Setting> settings { get; set; }
+        public DbSet<Topic> topic { get; set; }
+        public DbSet<Answer> answer { get; set; }
+        public DbSet<Class> classes { get; set; }
+        public DbSet<ClassSub> classSub { get; set; }
     }
 }

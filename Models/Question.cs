@@ -3,11 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LMS_Elibrary.Models
 {
-    public class Q_A
+    public class Question
     {
         [Key] public int Id { get; set; }
-        public string Question { get; set; } = string.Empty;
-        public string Answer {  get; set; } = string.Empty;
+        public string Detail { get; set; } = string.Empty;
 
         //Foreign key
         public int SubId { get; set; }
@@ -17,5 +16,8 @@ namespace LMS_Elibrary.Models
         public string UserId { get; set; }
         [ForeignKey("UserId")]
         public UserDto userDto { get; set; }
+
+        //Connection
+        public ICollection<Answer>? Answers { get; set; }
     }
 }

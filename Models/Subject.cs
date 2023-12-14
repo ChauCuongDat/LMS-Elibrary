@@ -17,7 +17,9 @@ namespace LMS_Elibrary.Models
         //Connection
         public ICollection<Document>? Documents { get; set; }
         public ICollection<Exam>? Exams { get; set; }
-        public ICollection<StarSubject>? StarSubjects { get; set; }
-        public ICollection<Q_A>? Q_As {  get; set; }
+        public ICollection<StudyingSubject>? StarSubjects { get; set; }
+        public ICollection<Question>? Q_As {  get; set; }
+        public ICollection<Topic>? Topics { get; set; }
+        public ICollection<ClassSub>? ClassSubs { get; set; }
     }
 }

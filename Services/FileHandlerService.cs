@@ -67,5 +67,11 @@ namespace LMS_Elibrary.Services
             return new FileForDownload(bytes, contentType, Path.GetFileName(filePath));
         }
 
+        public async Task<string> DeleteFile(string fileAddress)
+        {
+            System.IO.File.Delete(fileAddress);
+            return "File deleted";
+        }
+
     }
 }

@@ -3,9 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LMS_Elibrary.Models
 {
-    public class StarSubject
+    public class StudyingSubject
     {
         [Key] public int Id { get; set; }
+        public bool isFavorite {  get; set; }
 
         //Foreign key
         public int SubId { get; set; }

@@ -4,6 +4,7 @@ using LMS_Elibrary.Contextes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LMS_Elibrary.Migrations
 {
     [DbContext(typeof(LMSDbConext))]
-    partial class LMSDbConextModelSnapshot : ModelSnapshot
+    [Migration("20231213225246_next")]
+    partial class next
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,69 +23,6 @@ namespace LMS_Elibrary.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("LMS_Elibrary.Models.Answer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Detail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("answer");
-                });
-
-            modelBuilder.Entity("LMS_Elibrary.Models.Class", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("classes");
-                });
-
-            modelBuilder.Entity("LMS_Elibrary.Models.ClassSub", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("ClassId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SubId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassId");
-
-                    b.HasIndex("SubId");
-
-                    b.ToTable("classSub");
-                });
 
             modelBuilder.Entity("LMS_Elibrary.Models.Document", b =>
                 {
@@ -257,7 +196,7 @@ namespace LMS_Elibrary.Migrations
                     b.ToTable("privateFile");
                 });
 
-            modelBuilder.Entity("LMS_Elibrary.Models.Question", b =>
+            modelBuilder.Entity("LMS_Elibrary.Models.Q_A", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -265,7 +204,10 @@ namespace LMS_Elibrary.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Detail")
+                    b.Property<string>("Answer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Question")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SubId")
@@ -280,7 +222,7 @@ namespace LMS_Elibrary.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("question");
+                    b.ToTable("q_a");
                 });
 
             modelBuilder.Entity("LMS_Elibrary.Models.Setting", b =>
@@ -320,7 +262,7 @@ namespace LMS_Elibrary.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("isFavorite")
+                    b.Property<bool>("isStar")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
@@ -329,7 +271,7 @@ namespace LMS_Elibrary.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("studyingSubject");
+                    b.ToTable("starSubject");
                 });
 
             modelBuilder.Entity("LMS_Elibrary.Models.Subject", b =>
@@ -354,27 +296,6 @@ namespace LMS_Elibrary.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("subject");
-                });
-
-            modelBuilder.Entity("LMS_Elibrary.Models.Topic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SubId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubId");
-
-                    b.ToTable("topic");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -600,36 +521,6 @@ namespace LMS_Elibrary.Migrations
                     b.HasDiscriminator().HasValue("UserDto");
                 });
 
-            modelBuilder.Entity("LMS_Elibrary.Models.Answer", b =>
-                {
-                    b.HasOne("LMS_Elibrary.Models.Question", "Question")
-                        .WithMany("Answers")
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Question");
-                });
-
-            modelBuilder.Entity("LMS_Elibrary.Models.ClassSub", b =>
-                {
-                    b.HasOne("LMS_Elibrary.Models.Class", "Class")
-                        .WithMany("ClassSub")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LMS_Elibrary.Models.Subject", "Subject")
-                        .WithMany("ClassSubs")
-                        .HasForeignKey("SubId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("Subject");
-                });
-
             modelBuilder.Entity("LMS_Elibrary.Models.Document", b =>
                 {
                     b.HasOne("LMS_Elibrary.Models.Subject", "Subject")
@@ -691,7 +582,7 @@ namespace LMS_Elibrary.Migrations
                     b.Navigation("UserDto");
                 });
 
-            modelBuilder.Entity("LMS_Elibrary.Models.Question", b =>
+            modelBuilder.Entity("LMS_Elibrary.Models.Q_A", b =>
                 {
                     b.HasOne("LMS_Elibrary.Models.Subject", "Subject")
                         .WithMany("Q_As")
@@ -741,17 +632,6 @@ namespace LMS_Elibrary.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("UserDto");
-                });
-
-            modelBuilder.Entity("LMS_Elibrary.Models.Topic", b =>
-                {
-                    b.HasOne("LMS_Elibrary.Models.Subject", "Subject")
-                        .WithMany("Topics")
-                        .HasForeignKey("SubId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -805,20 +685,8 @@ namespace LMS_Elibrary.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("LMS_Elibrary.Models.Class", b =>
-                {
-                    b.Navigation("ClassSub");
-                });
-
-            modelBuilder.Entity("LMS_Elibrary.Models.Question", b =>
-                {
-                    b.Navigation("Answers");
-                });
-
             modelBuilder.Entity("LMS_Elibrary.Models.Subject", b =>
                 {
-                    b.Navigation("ClassSubs");
-
                     b.Navigation("Documents");
 
                     b.Navigation("Exams");
@@ -826,8 +694,6 @@ namespace LMS_Elibrary.Migrations
                     b.Navigation("Q_As");
 
                     b.Navigation("StarSubjects");
-
-                    b.Navigation("Topics");
                 });
 
             modelBuilder.Entity("LMS_Elibrary.Models.UserDto", b =>
