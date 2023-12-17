@@ -6,7 +6,8 @@ namespace LMS_Elibrary.Models
     public class StudyingSubject
     {
         [Key] public int Id { get; set; }
-        public bool isFavorite {  get; set; }
+        public bool? IsFavorite {  get; set; }
+        public DateTime? LastAccessed { get; set; }
 
         //Foreign key
         public int SubId { get; set; }

@@ -10,7 +10,7 @@ using Document = LMS_Elibrary.Models.Document;
 
 namespace LMS_Elibrary.Services
 {
-    public class CRUDService
+    public class CRUDService : ICRUDService
     {
         private readonly LMSDbConext _context;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -26,47 +26,47 @@ namespace LMS_Elibrary.Services
         }
 
         //Document
-        public string addDoc (Document doc, IFormFile docFile)
+        public string addDoc(Document doc, IFormFile docFile)
         {
             doc.FileAddress = _fileHandlerService.SaveDocument(docFile).ToString();
             _context.document.Add(doc);
             _context.SaveChanges();
             return "Document added";
         }
-        public List<Document> getDocs ()
+        public List<Document> getDocs()
         {
             return _context.document.ToList();
         }
-        public List<Document> getSubjectDocs (int subId)
+        public List<Document> getDocBySub(int subId)
         {
             return _context.document.
                 Include(i => i.Subject).
                 Where(i => i.SubId == subId).
                 ToList();
         }
-        public List<Document> getApprDocs ()
+        public List<Document> getDocByStatus(bool? status)
         {
             return _context.document.
-                Where(i => i.IsApproved == true).
+                Where(i => i.IsApproved == status).
                 ToList();
         }
-        public List<Document> getYetApprDoc()
+        public List<Document> getDocByUser(string userId)
         {
             return _context.document.
-                Where(i => i.IsApproved == null).
-                ToList();
+                Include(i => i.UserDto).
+                Where(i => i.UserId == userId).ToList();
         }
-        public Document getDoc (int Id)
+        public Document getDoc(int Id)
         {
             return _context.document.FirstOrDefault(i => i.Id == Id);
         }
-        public string updateDoc (Document doc)
+        public string updateDoc(Document doc)
         {
             _context.document.Update(doc);
             _context.SaveChanges();
             return "Document updated";
         }
-        public string approveDoc (int docId, string approverId)
+        public string approveDoc(int docId, string approverId)
         {
             Document doc = _context.document.Find(docId);
             if (doc == null)
@@ -80,7 +80,7 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Document approved";
         }
-        public string disapprDoc (int docId, string approverId)
+        public string disapprDoc(int docId, string approverId)
         {
             Document doc = _context.document.Find(docId);
             if (doc == null)
@@ -94,7 +94,7 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Document disapproved";
         }
-        public string removeDoc (int Id)
+        public string removeDoc(int Id)
         {
             Document doc = _context.document.Find(Id);
             if (doc != null)
@@ -115,11 +115,11 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Exam added";
         }
-        public List<Exam> getExamList ()
+        public List<Exam> getExamList()
         {
             return _context.exam.ToList();
         }
-        public List<Exam> getExamsBySub (int subId)
+        public List<Exam> getExamsBySub(int subId)
         {
             return _context.exam.
                 Include(i => i.Subject).
@@ -133,35 +133,27 @@ namespace LMS_Elibrary.Services
                 Where(i => i.UserId == UserId).
                 ToList();
         }
-        public List<Exam> getExamsByStatusA()
+        public List<Exam> getExamsByStatus(bool? status)
         {
             return _context.exam.
-                Where(i => i.ApproStatus == true).
+                Where(i => i.ApproStatus == status).
                 ToList();
         }
-        public List<Exam> getExamsByStatusD()
+        public List<Exam> searchExam(string searchStr)
         {
-            return _context.exam.
-                Where(i => i.ApproStatus == false).
-                ToList();
+            return _context.exam.Where(i => i.Name.Contains(searchStr)).ToList();
         }
-        public List<Exam> getExamsByStatusN()
-        {
-            return _context.exam.
-                Where(i => i.ApproStatus == null).
-                ToList();
-        }
-        public Exam getExam (int Id)
+        public Exam getExam(int Id)
         {
             return _context.exam.FirstOrDefault(i => i.Id == Id);
         }
-        public string updateExam (Exam exam)
+        public string updateExam(Exam exam)
         {
             _context.exam.Update(exam);
             _context.SaveChanges();
             return "Exam updated";
         }
-        public string approExam (int Id)
+        public string approExam(int Id)
         {
             Exam exam = _context.exam.Find(Id);
             if (exam == null)
@@ -173,7 +165,7 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Exam approved";
         }
-        public string disapproExam (int Id)
+        public string disapproExam(int Id)
         {
             Exam exam = _context.exam.Find(Id);
             if (exam == null)
@@ -185,7 +177,7 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Exam disapproved";
         }
-        public string removeExam (int Id)
+        public string removeExam(int Id)
         {
             Exam exam = _context.exam.Find(Id);
             if (exam != null)
@@ -208,11 +200,11 @@ namespace LMS_Elibrary.Services
         {
             return _context.help.ToList();
         }
-        public Help getHelp (int id)
+        public Help getHelp(int id)
         {
             return _context.help.FirstOrDefault(i => i.Id == id);
         }
-        public string updateHelp (Help help)
+        public string updateHelp(Help help)
         {
             _context.help.Update(help);
             _context.SaveChanges();
@@ -245,6 +237,10 @@ namespace LMS_Elibrary.Services
                 Where(i => i.UserId == userId).
                 ToList();
         }
+        public List<Notification> searchNoti(string searchS)
+        {
+            return _context.notification.Where(i => i.Name.Contains(searchS)).ToList();
+        }
         public Notification getNoti(int id)
         {
             Notification noti = _context.notification.FirstOrDefault(i => i.Id == id);
@@ -253,7 +249,7 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return noti;
         }
-        public string updateNotification (Notification noti)
+        public string updateNotification(Notification noti)
         {
             _context.notification.Update(noti);
             _context.SaveChanges();
@@ -261,8 +257,8 @@ namespace LMS_Elibrary.Services
         }
         public string readNoti(int notiId)
         {
-            Notification noti =_context.notification.Find(notiId);
-            noti.IsRead=true;
+            Notification noti = _context.notification.Find(notiId);
+            noti.IsRead = true;
             _context.notification.Update(noti);
             _context.SaveChanges();
             return "Notidication read";
@@ -278,7 +274,7 @@ namespace LMS_Elibrary.Services
         public string removeNotification(int id)
         {
             Notification noti = _context.notification.Find(id);
-            if(noti != null)
+            if (noti != null)
             {
                 _context.notification.Remove(noti);
                 _context.SaveChanges();
@@ -288,34 +284,40 @@ namespace LMS_Elibrary.Services
         }
 
         //Private file
-        public string addPriFile (PrivateFile priFile, IFormFile privateFile)
+        public string addPriFile(PrivateFile priFile, IFormFile privateFile)
         {
             priFile.FileAddress = _fileHandlerService.SavePriFile(privateFile).ToString();
             _context.privateFile.Add(priFile);
             _context.SaveChanges();
             return "Private file added";
         }
-        public List<PrivateFile> getPriFiles()
+        public List<PrivateFile> getPriFiles(string userId)
         {
-            return _context.privateFile.ToList();
+            return _context.privateFile.
+                Include(i=>i.UserDto).
+                Where(i=>i.UserId == userId).ToList();
         }
-        public List<PrivateFile> GetPriFilesByTypes (string type)
+        public List<PrivateFile> getPriFilesByTypes(string type)
         {
             return _context.privateFile.
                 Where(i => i.Type == type)
                 .ToList();
         }
+        public List<PrivateFile> searchPrifile(string searchS)
+        {
+            return _context.privateFile.Where(i=>i.Name.Contains(searchS)).ToList();
+        }
         public PrivateFile getPrivateFile(int id)
         {
             return _context.privateFile.FirstOrDefault(i => i.Id == id);
         }
-        public string updatePriFile (PrivateFile priFile)
+        public string updatePriFile(PrivateFile priFile)
         {
             _context.privateFile.Update(priFile);
             _context.SaveChanges();
             return "Private file updated";
         }
-        public string changePriFileName (int priFileId, string name)
+        public string changePriFileName(int priFileId, string name)
         {
             PrivateFile priFile = _context.privateFile.Find(priFileId);
             if (priFile == null)
@@ -323,15 +325,16 @@ namespace LMS_Elibrary.Services
                 return "No file found";
             }
             priFile.Name = name;
-            _context.privateFile.Update (priFile);
-            _context.SaveChanges ();
+            _context.privateFile.Update(priFile);
+            _context.SaveChanges();
             return "File name changed";
         }
-        public string removePriFile (int id)
+        public string removePriFile(int id)
         {
             PrivateFile priFile = _context.privateFile.Find(id);
             if (priFile != null)
             {
+                _fileHandlerService.DeleteFile(priFile.FileAddress);
                 _context.privateFile.Remove(priFile);
                 _context.SaveChanges();
                 return "Private file removed";
@@ -349,6 +352,12 @@ namespace LMS_Elibrary.Services
         public List<Question> GetQuestions()
         {
             return _context.question.ToList();
+        }
+        public List<Question> searchQ(string searchS)
+        {
+            return _context.question.
+                Include(i => i.Answers).
+                Where(i => i.Detail.Contains(searchS)).ToList();
         }
         public Question GetQuestion(int id)
         {
@@ -385,6 +394,12 @@ namespace LMS_Elibrary.Services
                 Include(i => i.Question).
                 Where(i => quesId == i.Id).ToList();
         }
+        public List<Answer> searchA(string searchS)
+        {
+            return _context.answer.
+                Include(i => i.Question).
+                Where(i => i.Detail.Contains(searchS)).ToList();
+        }
         public string updateAnswer(Answer answer)
         {
             _context.answer.Update(answer);
@@ -394,7 +409,7 @@ namespace LMS_Elibrary.Services
         public string removeAnswer(int id)
         {
             Answer answer = _context.answer.Find(id);
-            if(answer != null)
+            if (answer != null)
             {
                 _context.answer.Remove(answer);
                 _context.SaveChanges();
@@ -403,20 +418,37 @@ namespace LMS_Elibrary.Services
             return "Answer not found";
         }
 
-        //Student subject
+        //Studying subject
         public string addStudyingSubject(StudyingSubject stuSub)
         {
             _context.studyingSubject.Add(stuSub);
             _context.SaveChanges();
             return "Studying subject added";
         }
-        public List<StudyingSubject> GetStudyingSubjects()
+        public List<StudyingSubject> getStudyingSubjects()
         {
-            return _context.studyingSubject.ToList();
+            return _context.studyingSubject.Include(i => i.Subject).ToList();
         }
-        public StudyingSubject GetStudyingSubject(int id)
+        public List<StudyingSubject> getStudyingSubjectOrderbyName()
         {
-            return _context.studyingSubject.FirstOrDefault(i => i.Id == id);
+            return _context.studyingSubject.
+                Include(i => i.Subject).
+                OrderByDescending(i => i.Subject.Name).ToList();
+        }
+        public List<StudyingSubject> searchSub(string searchS)
+        {
+            return _context.studyingSubject.Include(i => i.Subject).Where(i => i.Subject.Name.Contains(searchS)).ToList();
+        }
+        public StudyingSubject getStudyingSubject(int subId, string userId)
+        {
+            StudyingSubject studyingSubject = _context.studyingSubject.
+                Include(i => i.Subject).
+                Include(i => i.userDto).
+                FirstOrDefault(i => i.SubId == subId & i.UserId == userId);
+            studyingSubject.LastAccessed = DateTime.Now;
+            _context.studyingSubject.Update(studyingSubject);
+            _context.SaveChanges();
+            return studyingSubject;
         }
         public string updateStudyingSubject(StudyingSubject stuSub)
         {
@@ -427,14 +459,14 @@ namespace LMS_Elibrary.Services
         public string favStudyingSubject(int studyId)
         {
             StudyingSubject stuSub = _context.studyingSubject.Find(studyId);
-            stuSub.isFavorite = true;
+            stuSub.IsFavorite = true;
             _context.SaveChanges();
             return "Studying subject favorited";
         }
         public string UnfavStudyingSubject(int studyId)
         {
             StudyingSubject stuSub = _context.studyingSubject.Find(studyId);
-            stuSub.isFavorite = false;
+            stuSub.IsFavorite = false;
             _context.SaveChanges();
             return "Studying subject unfavorited";
         }
@@ -449,7 +481,7 @@ namespace LMS_Elibrary.Services
             }
             return "No Studying subject found";
         }
-   
+
 
         //Subject
         public string addSubject(Subject sub)
@@ -458,9 +490,20 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Subject added";
         }
-        public List<Subject> GetSSubjects()
+        public List<Subject> getSubjects()
         {
             return _context.subject.ToList();
+        }
+        public List<Subject> searchSubject(string searchS)
+        {
+            return _context.subject.Where(i => i.Name.Contains(searchS)).ToList();
+        }
+        public List<StudyingSubject> getUserSubjectByFav(string userId, bool? isFav)
+        {
+            return _context.studyingSubject.
+                Include(i => i.userDto).
+                Include(i => i.Subject).
+                Where(i => i.UserId == userId & i.IsFavorite == isFav).ToList();
         }
         public Subject GetSubject(int id)
         {
@@ -499,6 +542,10 @@ namespace LMS_Elibrary.Services
         public async Task<IList<UserDto>> GetUsersByRole(string roleName)
         {
             return await Task.FromResult(_userManager.GetUsersInRoleAsync(roleName).Result);
+        }
+        public List<UserDto> SearchUserByNameOrCode(string searchS)
+        {
+            return _context.userDto.Where(i => i.UserName.Contains(searchS) || i.Code.Contains(searchS)).ToList();
         }
         public UserDto GetUser(string id)
         {
@@ -596,7 +643,7 @@ namespace LMS_Elibrary.Services
         {
             return _context.topic.
                 Include(i => i.Subject).
-                Where(i =>  i.SubId == subId).ToList();
+                Where(i => i.SubId == subId).ToList();
         }
         public string updateTopic(Topic topic)
         {
@@ -618,7 +665,7 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Class added";
         }
-        public List<Class> GetClassesBy ()
+        public List<Class> GetClassesBy()
         {
             return _context.classes.ToList();
         }
@@ -656,7 +703,7 @@ namespace LMS_Elibrary.Services
         public string removeClassSub(int classSubId)
         {
             ClassSub classSub = _context.classSub.Find(classSubId);
-            if(classSub != null)
+            if (classSub != null)
             {
                 _context.Remove(classSub);
                 _context.SaveChanges();
