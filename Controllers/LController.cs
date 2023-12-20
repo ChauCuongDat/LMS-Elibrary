@@ -1,12 +1,15 @@
 ﻿using LMS_Elibrary.Models;
 using LMS_Elibrary.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LMS_Elibrary.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Leadership")]
     public class LController : ControllerBase
     {
         private readonly ICRUDService _crudService;
@@ -22,7 +25,7 @@ namespace LMS_Elibrary.Controllers
         [HttpGet("1 Get subject list")]
         public List<Subject> GetSubjects()
         {
-            return _crudService.getSubjects();
+            return _crudService.GetSubjects();
         }
 
         [HttpGet("1.2 Get subject documents")]
@@ -171,6 +174,81 @@ namespace LMS_Elibrary.Controllers
             string filePath = _crudService.getExam(examId).FileAdddress;
             FileForDownload file = await _fileHandlerService.DownloadFile(filePath);
             return File(file.bytes, file.contentType, file.fileName);
+        }
+
+        //Function 5: Setting
+
+        [HttpGet("1 See setting")]
+        public Setting GetSetting(string userId)
+        {
+            return _crudService.getSetting(userId);
+        }
+
+        [HttpPatch("1.1 Change setting")]
+        public string changeSetting(Setting setting)
+        {
+            return _crudService.changeSetting(setting);
+        }
+
+        [HttpGet("2 Get role list")]
+        public List<IdentityRole> getRoleList()
+        {
+            return _crudService.GetRoles();
+        }
+
+        [HttpPost("2.1 Add role")]
+        public string addRole(IdentityRole role)
+        {
+            return _crudService.addRole(role);
+        }
+
+        [HttpPatch("2.2 Edit role")]
+        public string editRole(IdentityRole role)
+        {
+            return _crudService.updateRole(role);
+        }
+
+        [HttpDelete("2.3 Remove role")]
+        public string deleteRole(IdentityRole role)
+        {
+            return _crudService.removeRole(role);
+        }
+
+        [HttpGet("3 Get user list")]
+        public List<UserDto> getUserList()
+        {
+            return _crudService.GetUsers();
+        }
+
+        [HttpGet("3.1 Search user")]
+        public List<UserDto> searchUser(string searchS)
+        {
+            return _crudService.SearchUserByNameOrCode(searchS);
+        }
+
+        [HttpGet("3.2 Get user list by role")]
+        public Task<IList<UserDto>> getUserListByRole(string roleName)
+        {
+            return _crudService.GetUsersByRole(roleName);
+        }
+
+        [HttpPost("3.3 Add user")]
+        public string addUser(UserDto user)
+        {
+            return _crudService.addUser(user,null);
+        }
+
+        [HttpPatch("3.4 Change user role")]
+        public Task<string> changeUserRole(string oldRole, string newRole, string userId)
+        {
+            _crudService.removeUserRole(oldRole, userId);
+            return _crudService.addUserRole(newRole, userId);
+        }
+
+        [HttpDelete("3.5 Delete user")]
+        public string deleteUser(string userId)
+        {
+            return _crudService.deleteUser(userId);
         }
     }
 }

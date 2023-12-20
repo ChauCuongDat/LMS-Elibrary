@@ -14,9 +14,9 @@ namespace LMS_Elibrary.Models
         public string FileAddress { get; set; } = string.Empty;
 
         //Foreign Key
-        public int SubId { get; set; }
+        public int? SubId { get; set; }
         [ForeignKey("SubId")]
-        public Subject Subject { get; set; }
+        public Subject? Subject { get; set; }
         
         public string UserId { get; set; }
         [ForeignKey("UserId")]

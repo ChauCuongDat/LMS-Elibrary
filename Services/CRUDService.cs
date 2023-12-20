@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using Document = LMS_Elibrary.Models.Document;
@@ -44,10 +45,23 @@ namespace LMS_Elibrary.Services
                 Where(i => i.SubId == subId).
                 ToList();
         }
+        public List<Document> getLessonBySub(int subId)
+        {
+            return _context.document.
+                Include(i => i.Subject).
+                Where(i => i.SubId == subId&&i.Type=="Lesson").
+                ToList();
+        }
         public List<Document> getDocByStatus(bool? status)
         {
             return _context.document.
                 Where(i => i.IsApproved == status).
+                ToList();
+        }
+        public List<Document> getSubDocByStatus(int subId,bool? status)
+        {
+            return _context.document.
+                Where(i => i.IsApproved == status && i.SubId==subId).
                 ToList();
         }
         public List<Document> getDocByUser(string userId)
@@ -55,6 +69,20 @@ namespace LMS_Elibrary.Services
             return _context.document.
                 Include(i => i.UserDto).
                 Where(i => i.UserId == userId).ToList();
+        }
+        public List<Document> getLessonByUser(string userId)
+        {
+            return _context.document.
+                Include(i => i.UserDto).
+                Where(i => i.UserId == userId && i.Type == "Lesson").ToList();
+        }
+        public List<Document> SearchDoc(string searchS)
+        {
+            return _context.document.Where(i => i.Name.Contains(searchS)).ToList();
+        }
+        public List<Document> SearchLesson(string searchS)
+        {
+            return _context.document.Where(i => i.Name.Contains(searchS) && i.Type == "Lesson").ToList();
         }
         public Document getDoc(int Id)
         {
@@ -237,9 +265,9 @@ namespace LMS_Elibrary.Services
                 Where(i => i.UserId == userId).
                 ToList();
         }
-        public List<Notification> searchNoti(string searchS)
+        public List<Notification> searchNoti(string searchS, string userID)
         {
-            return _context.notification.Where(i => i.Name.Contains(searchS)).ToList();
+            return _context.notification.Where(i => i.Name.Contains(searchS)&&i.UserId==userID).ToList();
         }
         public Notification getNoti(int id)
         {
@@ -351,7 +379,14 @@ namespace LMS_Elibrary.Services
         }
         public List<Question> GetQuestions()
         {
-            return _context.question.ToList();
+            return _context.question.Include(i=>i.Answers).ToList();
+        }
+        public List<Question> GetQuestionBySubject(int subId)
+        {
+            return _context.question.
+                Include(i=>i.Subject).
+                Include(i=>i.Answers).
+                Where(i=>i.SubId==subId).ToList();
         }
         public List<Question> searchQ(string searchS)
         {
@@ -425,19 +460,29 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Studying subject added";
         }
-        public List<StudyingSubject> getStudyingSubjects()
+        public List<StudyingSubject> getStudyingSubjects(string userId)
         {
-            return _context.studyingSubject.Include(i => i.Subject).ToList();
+            return _context.studyingSubject.Include(i => i.Subject).Where(i=>i.UserId==userId).ToList();
         }
-        public List<StudyingSubject> getStudyingSubjectOrderbyName()
+        public List<StudyingSubject> getStudyingSubjectOrderbyName(string userId)
         {
             return _context.studyingSubject.
                 Include(i => i.Subject).
+                Where(i=>i.UserId==userId).
                 OrderByDescending(i => i.Subject.Name).ToList();
         }
-        public List<StudyingSubject> searchSub(string searchS)
+        public List<StudyingSubject> getStudyingSubjectOrderbyAccess(string userId)
         {
-            return _context.studyingSubject.Include(i => i.Subject).Where(i => i.Subject.Name.Contains(searchS)).ToList();
+            return _context.studyingSubject.
+                Include(i => i.Subject).
+                Where(i => i.UserId == userId).
+                OrderByDescending(i => i.LastAccessed).ToList();
+        }
+        public List<StudyingSubject> searchStudyingSub(string searchS, string userId)
+        {
+            return _context.studyingSubject.
+                Include(i => i.Subject).
+                Where(i => i.Subject.Name.Contains(searchS) && i.UserId==userId).ToList();
         }
         public StudyingSubject getStudyingSubject(int subId, string userId)
         {
@@ -456,16 +501,16 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Studying subject updated";
         }
-        public string favStudyingSubject(int studyId)
+        public string favStudyingSubject(string userId, int subId)
         {
-            StudyingSubject stuSub = _context.studyingSubject.Find(studyId);
+            StudyingSubject stuSub = _context.studyingSubject.Where(i=>i.SubId==subId&&i.UserId==userId).FirstOrDefault();
             stuSub.IsFavorite = true;
             _context.SaveChanges();
             return "Studying subject favorited";
         }
-        public string UnfavStudyingSubject(int studyId)
+        public string UnfavStudyingSubject(string userId, int subId)
         {
-            StudyingSubject stuSub = _context.studyingSubject.Find(studyId);
+            StudyingSubject stuSub = _context.studyingSubject.Where(i => i.SubId == subId && i.UserId == userId).FirstOrDefault();
             stuSub.IsFavorite = false;
             _context.SaveChanges();
             return "Studying subject unfavorited";
@@ -490,13 +535,30 @@ namespace LMS_Elibrary.Services
             _context.SaveChanges();
             return "Subject added";
         }
-        public List<Subject> getSubjects()
+        public List<Subject> GetSubjects()
         {
             return _context.subject.ToList();
+        }
+        public List<Subject> getUserSubjects(string userId)
+        {
+            return _context.subject.
+                Include(i=>i.UserDto).
+                Include(i=>i.Documents).
+                Where(i=>i.UserId==userId).ToList();
         }
         public List<Subject> searchSubject(string searchS)
         {
             return _context.subject.Where(i => i.Name.Contains(searchS)).ToList();
+        }
+        public List<Subject> searchUserSubject(string searchS, string userId)
+        {
+            return _context.subject.Where(i => i.Name.Contains(searchS) && i.UserId == userId).ToList();
+        }
+        public List<Subject> sortSubjectByName(string userId)
+        {
+            return _context.subject.
+                Where(i=>i.UserId==userId).
+                OrderByDescending(i=>i.Name).ToList();
         }
         public List<StudyingSubject> getUserSubjectByFav(string userId, bool? isFav)
         {
@@ -509,7 +571,7 @@ namespace LMS_Elibrary.Services
         {
             return _context.subject.FirstOrDefault(i => i.Id == id);
         }
-        public string updateSUbject(Subject subject)
+        public string updateSubject(Subject subject)
         {
             _context.subject.Update(subject);
             _context.SaveChanges();
@@ -533,6 +595,7 @@ namespace LMS_Elibrary.Services
             user.Avatar = _fileHandlerService.SaveAvatar(avatar).ToString();
             _context.userDto.Add(user);
             _context.SaveChanges();
+            addSetting(user.Id);
             return "User added";
         }
         public List<UserDto> GetUsers()
@@ -585,9 +648,9 @@ namespace LMS_Elibrary.Services
             UserDto user = _context.userDto.FirstOrDefault(i => i.Id == userId);
             return await _userManager.ChangePasswordAsync(user, oldPass, newPass);
         }
-        public string deleteUser(int id)
+        public string deleteUser(string id)
         {
-            UserDto user = _context.userDto.Find(id);
+            UserDto user = _context.userDto.Where(i=>i.Id==id).FirstOrDefault();
             if (user != null)
             {
                 _context.userDto.Remove(user);
@@ -598,8 +661,17 @@ namespace LMS_Elibrary.Services
         }
 
         //Setting
-        public string addSetting(Setting setting)
+        public Setting getSetting(string userId)
         {
+            return _context.settings.
+                Include(i=>i.userDto).
+                Where(i=>i.UserId == userId).FirstOrDefault();
+        }
+        public string addSetting(string userId)
+        {
+            Setting setting = new Setting();
+            setting.UserId = userId;
+            setting.IsNotify = true;
             _context.settings.Add(setting);
             _context.SaveChanges();
             return "Setting created";
@@ -609,6 +681,14 @@ namespace LMS_Elibrary.Services
             _context.settings.Update(setting);
             _context.SaveChanges();
             return "Setting saved";
+        }
+        public string changeNotification (bool status, string userId)
+        {
+            Setting setting = _context.settings.Include(i => i.userDto).Where(i => i.UserId == userId).FirstOrDefault();
+            setting.IsNotify = status;
+            _context.settings.Update(setting);
+            _context.SaveChanges();
+            return "Notification status changed";
         }
 
         //Role
@@ -693,6 +773,14 @@ namespace LMS_Elibrary.Services
         public List<ClassSub> getClassSubs()
         {
             return _context.classSub.ToList();
+        }
+        public ClassSub getClassSub(int id)
+        {
+            return _context.classSub.
+                Include(i=>i.Subject).
+                Include(i=>i.Subject.Topics.Where(t=>t.SubId==i.Subject.Id)).
+                Include(i => i.Subject.Q_As.Where(q => q.SubId == i.Subject.Id)).
+                FirstOrDefault(i=>i.SubId == id);
         }
         public string updateClass(ClassSub classSub)
         {

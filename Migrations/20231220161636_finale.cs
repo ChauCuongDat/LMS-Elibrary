@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace LMS_Elibrary.Migrations
 {
-    public partial class initial : Migration
+    public partial class finale : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -51,6 +51,19 @@ namespace LMS_Elibrary.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "classes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_classes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -263,6 +276,32 @@ namespace LMS_Elibrary.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "classSub",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SubId = table.Column<int>(type: "int", nullable: false),
+                    ClassId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_classSub", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_classSub_classes_ClassId",
+                        column: x => x.ClassId,
+                        principalTable: "classes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_classSub_subject_SubId",
+                        column: x => x.SubId,
+                        principalTable: "subject",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "document",
                 columns: table => new
                 {
@@ -274,7 +313,7 @@ namespace LMS_Elibrary.Migrations
                     IsApproved = table.Column<bool>(type: "bit", nullable: true),
                     ApproverId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SubId = table.Column<int>(type: "int", nullable: false),
+                    SubId = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -289,8 +328,7 @@ namespace LMS_Elibrary.Migrations
                         name: "FK_document_subject_SubId",
                         column: x => x.SubId,
                         principalTable: "subject",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -327,26 +365,25 @@ namespace LMS_Elibrary.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "q_a",
+                name: "question",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Question = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Answer = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Detail = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SubId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_q_a", x => x.Id);
+                    table.PrimaryKey("PK_question", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_q_a_AspNetUsers_UserId",
+                        name: "FK_question_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_q_a_subject_SubId",
+                        name: "FK_question_subject_SubId",
                         column: x => x.SubId,
                         principalTable: "subject",
                         principalColumn: "Id",
@@ -354,29 +391,77 @@ namespace LMS_Elibrary.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "starSubject",
+                name: "studyingSubject",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    IsFavorite = table.Column<bool>(type: "bit", nullable: true),
+                    LastAccessed = table.Column<DateTime>(type: "datetime2", nullable: true),
                     SubId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_starSubject", x => x.Id);
+                    table.PrimaryKey("PK_studyingSubject", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_starSubject_AspNetUsers_UserId",
+                        name: "FK_studyingSubject_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_starSubject_subject_SubId",
+                        name: "FK_studyingSubject_subject_SubId",
                         column: x => x.SubId,
                         principalTable: "subject",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "topic",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SubId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_topic", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_topic_subject_SubId",
+                        column: x => x.SubId,
+                        principalTable: "subject",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "answer",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Detail = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    QuestionId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_answer", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_answer_question_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "question",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_answer_QuestionId",
+                table: "answer",
+                column: "QuestionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -418,6 +503,16 @@ namespace LMS_Elibrary.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_classSub_ClassId",
+                table: "classSub",
+                column: "ClassId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_classSub_SubId",
+                table: "classSub",
+                column: "SubId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_document_SubId",
                 table: "document",
                 column: "SubId");
@@ -453,13 +548,13 @@ namespace LMS_Elibrary.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_q_a_SubId",
-                table: "q_a",
+                name: "IX_question_SubId",
+                table: "question",
                 column: "SubId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_q_a_UserId",
-                table: "q_a",
+                name: "IX_question_UserId",
+                table: "question",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -470,23 +565,31 @@ namespace LMS_Elibrary.Migrations
                 filter: "[UserId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_starSubject_SubId",
-                table: "starSubject",
+                name: "IX_studyingSubject_SubId",
+                table: "studyingSubject",
                 column: "SubId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_starSubject_UserId",
-                table: "starSubject",
+                name: "IX_studyingSubject_UserId",
+                table: "studyingSubject",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_subject_UserId",
                 table: "subject",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_topic_SubId",
+                table: "topic",
+                column: "SubId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "answer");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -501,6 +604,9 @@ namespace LMS_Elibrary.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "classSub");
 
             migrationBuilder.DropTable(
                 name: "document");
@@ -518,16 +624,22 @@ namespace LMS_Elibrary.Migrations
                 name: "privateFile");
 
             migrationBuilder.DropTable(
-                name: "q_a");
-
-            migrationBuilder.DropTable(
                 name: "settings");
 
             migrationBuilder.DropTable(
-                name: "starSubject");
+                name: "studyingSubject");
+
+            migrationBuilder.DropTable(
+                name: "topic");
+
+            migrationBuilder.DropTable(
+                name: "question");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "classes");
 
             migrationBuilder.DropTable(
                 name: "subject");

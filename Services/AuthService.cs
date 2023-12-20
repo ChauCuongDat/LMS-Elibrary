@@ -13,10 +13,10 @@ namespace LMS_Elibrary.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<UserDto> _userManager;
         private readonly IConfiguration _configuration;
 
-        public AuthService(UserManager<IdentityUser> userManager, IConfiguration configuration)
+        public AuthService(UserManager<UserDto> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration;
@@ -25,11 +25,11 @@ namespace LMS_Elibrary.Services
         public async Task<bool> Register(UserDto request, string password)
         {
 
-            var identityUser = new IdentityUser
+            var userDto = new UserDto
             {
                 UserName = request.UserName
             };
-            var result = await _userManager.CreateAsync(identityUser, password);
+            var result = await _userManager.CreateAsync(userDto, password);
 
             return result.Succeeded;
         }
@@ -46,17 +46,21 @@ namespace LMS_Elibrary.Services
             { 
                 return "false";
             }
-            string token = CreateToken(request);
+            string token = await CreateToken(request);
             return token;
         }
 
-        private string CreateToken(UserDto user)
+        private async Task<string> CreateToken(UserDto user)
         {
+            var roleList = await _userManager.GetRolesAsync(user);
+            var claimRoleList = roleList.Select(i => new Claim(ClaimTypes.Role,i)).ToList();
+
             List<Claim> claim = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, "Admin")
+                new Claim(ClaimTypes.Name, user.UserName)
             };
+
+            claim.AddRange(claimRoleList);
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSetting:Token").Value));
 

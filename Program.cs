@@ -21,7 +21,7 @@ internal class Program
             options.UseSqlServer(builder.Configuration.GetSection("ConnectionStrings:ConnectionStr").Value);
         });
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+        builder.Services.AddIdentity<LMS_Elibrary.Models.UserDto, IdentityRole>(options =>
         {
             options.Password.RequiredLength = 5;
         }).AddEntityFrameworkStores<LMSDbConext>().AddDefaultTokenProviders();

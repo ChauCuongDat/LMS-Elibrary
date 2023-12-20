@@ -108,7 +108,7 @@ namespace LMS_Elibrary.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SubId")
+                    b.Property<int?>("SubId")
                         .HasColumnType("int");
 
                     b.Property<string>("Type")
@@ -314,14 +314,17 @@ namespace LMS_Elibrary.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<bool?>("IsFavorite")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastAccessed")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("SubId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("isFavorite")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -634,9 +637,7 @@ namespace LMS_Elibrary.Migrations
                 {
                     b.HasOne("LMS_Elibrary.Models.Subject", "Subject")
                         .WithMany("Documents")
-                        .HasForeignKey("SubId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SubId");
 
                     b.HasOne("LMS_Elibrary.Models.UserDto", "UserDto")
                         .WithMany("Documents")
@@ -720,7 +721,7 @@ namespace LMS_Elibrary.Migrations
             modelBuilder.Entity("LMS_Elibrary.Models.StudyingSubject", b =>
                 {
                     b.HasOne("LMS_Elibrary.Models.Subject", "Subject")
-                        .WithMany("StarSubjects")
+                        .WithMany("StudyingSubjects")
                         .HasForeignKey("SubId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -825,7 +826,7 @@ namespace LMS_Elibrary.Migrations
 
                     b.Navigation("Q_As");
 
-                    b.Navigation("StarSubjects");
+                    b.Navigation("StudyingSubjects");
 
                     b.Navigation("Topics");
                 });
